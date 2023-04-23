@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tingfeng.store.mapper.OrderMapper">
+    <insert id="insertOrder" useGeneratedKeys="true" keyProperty="oid">
+        INSERT INTO t_order (
+            uid, recv_name, recv_phone, recv_province, recv_city, recv_area, recv_address,
+            total_price,status, order_time, pay_time, created_user, created_time, modified_user,
+            modified_time
+        ) VALUES (
+                     #{uid}, #{recvName}, #{recvPhone}, #{recvProvince}, #{recvCity}, #{recvArea},
+                     #{recvAddress}, #{totalPrice}, #{status}, #{orderTime}, #{payTime}, #{createdUser},
+                     #{createdTime}, #{modifiedUser}, #{modifiedTime}
+                 )
+    </insert>
+    
+    <insert id="insertOrderItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_order_item (
+            oid, pid, title, image, price, num, created_user,
+            created_time, modified_user, modified_time
+        ) VALUES (
+                     #{oid}, #{pid}, #{title}, #{image}, #{price}, #{num}, #{createdUser},
+                     #{createdTime}, #{modifiedUser}, #{modifiedTime}
+                 )
+    </insert>
+
+    <select id="findVoByUid" parameterType="java.lang.Integer" resultType="orderVO">
+        SELECT t_order_item.id,t_order_item.oid, t_order_item.pid, t_order_item.price, t_order_item.num,t_order_item.image,t_order_item.title,
+               t_order.recv_phone, t_order.status, t_order.order_time, t_order.recv_name
+        FROM t_order_item
+                 JOIN t_order ON t_order_item.oid = t_order.oid
+        WHERE uid = #{uid} and is_delete=1
+        ORDER BY t_order_item.oid desc
+    </select>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        UPDATE t_order_item SET is_delete = 0 WHERE id = #{id}
+    </delete>
+
+    <update id="updateByOid" parameterType="java.lang.Integer">
+        UPDATE t_order SET `status` = 1 WHERE oid =#{oid}
+    </update>
+
+    <select id="findVOByStatus" parameterType="java.lang.Integer" resultType="orderVO">
+        SELECT t_order_item.id,t_order_item.oid, t_order_item.pid, t_order_item.price, t_order_item.num,t_order_item.image,t_order_item.title,
+               t_order.recv_phone, t_order.status, t_order.order_time, t_order.recv_name
+        FROM t_order_item
+                 JOIN t_order ON t_order_item.oid = t_order.oid
+        WHERE uid = #{uid} and is_delete=1 AND t_order.`status`=#{status}
+        ORDER BY t_order_item.oid desc
+    </select>
+</mapper>
